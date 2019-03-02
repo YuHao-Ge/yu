@@ -1,0 +1,83 @@
+#总览 http://genome.ucsc.edu/goldenPath/help/wiggle.html
+sam/bam格式文件，是把测序reads比对到参考基因组后的文件,为了追踪我们的reads到底比对到了参加基因组的什么区域;
+而UCSC规定的这几个文件格式(wig、bigWig和bedgraph)用处不一样，是为了追踪参考基因组的各个区域的覆盖度，测序深度.
+而且这些定义好的文件，可以无缝连接到UCSC的Genome Browser工具里面进行可视化！
+
+#主体结构
+第一行 track definition line
+指定track的方式，添加了用于控制默认显示的选项
+
+其中一种方式为variableStep format，后面接着的chrom=chrN表示数据所在位置
+适用于不同位置记录数据多少不相同的情况。在definition line下面是记录的数据，两列组成。
+
+参数span 指定连续相同值的跨度，使更简洁，初始为1
+
+例如
+variableStep chrom=chr1
+1636	0.9048
+2019	1.0000
+2056	1.0000
+2159	1.0000
+2163	1.0000
+2206	0.9211
+2239	1.0000
+2255	1.0000
+2317	0.9333
+
+#browser行 各种参数决定显示的位置以及隐藏或者显示track
+#track行 Parameters for custom wiggle track definition lines
+以空格为间隔依次填入，
+type=wiggle_0 是必须的
+
+例如
+browser position chr19:49304200-49310700
+browser hide all
+#	150 base wide bar graph at arbitrarily spaced positions,
+#	threshold line drawn at y=11.76
+#	autoScale off viewing range set to [0:25]
+#	priority = 10 positions this as the first graph
+#	Note, one-relative coordinate system in use for this format
+track type=wiggle_0 name="variableStep" description="variableStep format" visibility=full autoScale=off viewLimits=0.0:25.0 color=50,150,255 yLineMark=11.76 yLineOnOff=on priority=10
+variableStep chrom=chr19 span=150
+49304701 10.0
+49304901 12.5
+49305401 15.0
+49305601 17.5
+49305901 20.0
+49306081 17.5
+49306301 15.0
+49306691 12.5
+49307871 10.0
+
+#用UCSC提供的Genome Browser工具来可视化customTrack
+http://genome.ucsc.edu/index.html
+
+#==================================================================
+#track的收集和定义Custom track
+https://blog.csdn.net/hehephper/article/details/61195957
+全程参照官网说明文件
+http://genome.ucsc.edu/goldenPath/help/bigWig.html
+
+#1 下载wigToBigWig
+http://genome.ucsc.edu/goldenPath/help/bigWig.html
+#2 wigToBigWig的使用
+使用前需给所在文件夹以及文件执行权限 chmod +x
+-clip选项可以保证程序仅给出warning，不终止而是继续执行下去
+wigToBigWig in.wig chrom.sizes out.bw
+#3 创建chrom.sizes文件.使用fetchChromSizes工具
+#非指定方法 chrom.sizes文件内容在'http://genome.ucsc.edu/cgi-bin/hgGateway'中view sequences
+#同样OK啦  copy后用vi将','替换为None 即 '78,093,715'-->'78093715'
+fetchChromSizes <db> > <db>.chrom.sizes
+查找 <db> - name of UCSC database, e.g.: hg38, hg18, mm9, etc ...
+http://hgdownload.soe.ucsc.edu/goldenPath/<db>/bigZips/<db>.chrom.sizes
+http://hgdownload.soe.ucsc.edu/goldenPath/danRer11/bigZips/danRer11.chrom.sizes
+
+#官方创建bigWig的方法
+http://genome.ucsc.edu/goldenPath/help/bigWig.html
+#Hosting Hubs on Github 文件大小在100M以上需要学习Git LFS
+上传完成后需要点击'Raw'(或者'view raw')按钮，获取"raw.githubusercontent.com"形式的URL
+http://genome.ucsc.edu/goldenPath/help/hgTrackHubHelp.html#Hosting
+#====================================================================
+#IGV对bam bw文件可视化 还没使用
+#/home/leesin/下载/IGV_2.4.19/igv.sh
+https://baijiahao.baidu.com/s?id=1594891457311223710&wfr=spider&for=pc
